@@ -10,12 +10,12 @@ from multiprocessing import Pool
 
 genres = \
     [
-        #"det_action",
-        #"detective",
-        #"thriller",
-        #"children",
-        #"child_prose",
-        #"child_sf",
+        "det_action",
+        "detective",
+        "thriller",
+        "children",
+        "child_prose",
+        "child_sf",
         "love_history",
         "love_contemporary",
         "prose_history",
