@@ -41,7 +41,7 @@ def process_genre(genre, log, more):
     print("Process %s" % genre)
     genre_path = "flibusta/%s/*.fb2" % genre
     genre_files = get_files(genre_path)
-    genre_ps = list(map(lambda file: get_p(file_content(file)), genre_files))
+    genre_ps = list(map(lambda file: get_p(file_content(file)), genre_files[:10]))
 
     genre_metrics = []
 
@@ -112,6 +112,7 @@ def count_metrics(genre_p):
     
     words = mystem_process(" ".join(genre_p)).split("\n")
     words_count = len(words)
+    print(words[:10])
     for word in words:
         orig, lemma = parse_word(word)
         words_len += len(orig)
