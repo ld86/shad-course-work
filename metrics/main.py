@@ -1,11 +1,15 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+import pickle
+import sys
+import itertools
 from bs4 import BeautifulSoup as BS
 from glob import glob
 from subprocess import Popen, PIPE
 from multiprocessing import Pool
 import re
+import math
 
 genres = \
     [
@@ -30,26 +34,61 @@ genres = \
     ]
 
 
-def main():    
+def main(): 
     with open("result", "w") as log:
+        log.flush()
         with open("more_result", "w") as more:
             for genre in genres:
                 process_genre(genre, log, more)
 
+def work_with_ps(genre_p_and_name_and_genre):
+    genre_p, name, genre = genre_p_and_name_and_genre
+    print("Process %s" % name)
+    words = mystem_process(" ".join(genre_p)).split("\n")
+    
+    lemmas = {}
+
+    for word in words:
+        orig, lemma = parse_word(word)
+        if lemma in lemmas:
+            lemmas[lemma] += 1
+        else:
+            lemmas[lemma] = 1
+
+    lemmas_counts = []
+    for lemma in lemmas:
+        lemmas_counts.append((lemmas[lemma], lemma))
+
+    lemmas_counts = sorted(lemmas_counts, reverse=True)
+    lemmas_counts_length = len(lemmas_counts)
+    index_from = int(lemmas_counts_length/3)
+    lemmas_string = []
+    print(lemmas_counts[0:5])
+    for lemma in lemmas_counts[index_from:-index_from]:
+        lemmas_string.append(lemma[1])
+
+    log_string = [ 
+        name,
+        genre,
+        ','.join(list(lemmas_string))
+    ]
+    return ";".join(map(str, log_string))
 
 def process_genre(genre, log, more):
     print("Process %s" % genre)
-    genre_path = "flibusta/%s/*.fb2" % genre
+    genre_path = "../corpus/flibusta/%s/*.fb2" % genre
     genre_files = get_files(genre_path)
-    genre_ps = list(map(lambda file: get_p(file_content(file)), genre_files[:10]))
+    genre_ps = list(map(lambda file: get_p(file_content(file)), genre_files))
 
-    genre_metrics = []
 
-    for genre_p_and_name in zip(genre_ps, genre_files):
-        genre_p, name = genre_p_and_name
-        print("Process %s" % name)
-        metrics = count_metrics(genre_p)
-        genre_metrics.append(metrics)
+    pool = Pool(10)
+    metrics = pool.map(work_with_ps, zip(genre_ps, genre_files, itertools.repeat(genre)))
+    pool.close()
+    pool.join()    
+    #metrics = map(work_with_ps, zip(genre_ps, genre_files, itertools.repeat(genre)))
+    for metric in metrics:
+        print(metric, file=log)
+    log.flush()
 
     # total_sentences_count
     # total_sentences_long
@@ -60,26 +99,6 @@ def process_genre(genre, log, more):
     # lemmas
     # punctuation
 
-    total = [0, 0, 0, 0, 0, 0, set(), 0]
-    print("Process total metrics")
-    for metrics in genre_metrics:
-        for i in [0, 1, 2, 3, 4, 5, 7]:
-            total[i] += metrics[i]
-        total[6] = total[6].union(metrics[6])
-
-    log_string =    [
-                        genre,
-                        str(total[0] / total[1]),
-                        str(total[4] / total[5]),
-                        str(total[3] / total[0]),
-                        str(total[2] / len(genre_metrics)),
-                        str(len(total[6])),
-                        str(total[7] / len(genre_metrics))
-                    ]
-
-    print(";".join(log_string), file=log)
-    print(genre_metrics, file=more)
-    log.flush()
 
 def count_metrics(genre_p):
     sentences_long = 0
@@ -100,7 +119,8 @@ def count_metrics(genre_p):
 
             # Dialogs count
             if  sentence.lstrip().startswith("—") is True or \
-                sentence.lstrip().startswith("–") is True:
+                sentence.lstrip().startswith("–") is True or \
+                sentence.lstrip().startswith("-") is True:
                 dialogs_count += 1
 
         # Book len
@@ -112,7 +132,6 @@ def count_metrics(genre_p):
     
     words = mystem_process(" ".join(genre_p)).split("\n")
     words_count = len(words)
-    print(words[:10])
     for word in words:
         orig, lemma = parse_word(word)
         words_len += len(orig)
@@ -156,4 +175,12 @@ def get_files(path):
 
 if __name__ == "__main__":
     main()
+    #compare(sys.argv[1])
+    
 
+    #for genre in genres:
+    #    genre_path = "flibusta/%s/*.fb2" % genre
+    #    genre_files = get_files(genre_path)
+    #    for file in genre_files:
+    #        print(file)
+    #        compare(file)
