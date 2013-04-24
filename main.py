@@ -11,5 +11,5 @@ def work_with_book(book):
 
 if __name__ == "__main__":
     books_filenames = utils.get_all_books_filenames()
-    books_filenames = utils.get_books_from_genre("detective")
+    books_filenames = utils.get_books_from_genre("detective")[:10]
     with_each_book(books_filenames, work_with_book, 10)

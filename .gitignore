@@ -1,1 +1,4 @@
 corpus
+.*
+__pycache__
+data*
