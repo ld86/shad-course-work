@@ -1,5 +1,5 @@
-#!/opt/local/bin/python3.2
-#_*_ coding: utf-8 _*_
+#!/usr/bin/python3.2
+# -*- coding: utf-8 -*-
 
 import bs4
 from bs4 import BeautifulSoup
@@ -50,7 +50,6 @@ class Names_calculator:
             pos = self.up_letter_words_pos[i]
             j = len(word.split()) + len(word.split('-')) - 1
             lemma = ' '.join(mystem_lemmas[l_index : l_index + j])
-            print(lemma)
             if lemma in self.names_lemmas.keys():
                 hc = self.names_lemmas[lemma]
                 hc.count += 1
@@ -117,7 +116,7 @@ class FB2_parser:
         return " ".join(strings)
 
 def main():
-    f = open("corpus/bibliya.fb2", "r")
+    f = open("corpus/bibliya.fb2", "rb")
     text = f.read()
     f.close()
     parser = FB2_parser(text)
