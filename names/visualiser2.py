@@ -8,7 +8,7 @@ import names_grep as ng
 import PIL.ImageFont as ImageFont
 import argparse
 
-pic_height = 1024
+pic_height = 4096
 pic_width = 1024
 hero_count = 20
 
@@ -58,12 +58,29 @@ def run(file_name):
         for pos in names[i].positions:
             x = int((pos / txt_len) * (x2 - x1))
             counts[x] += 1
-        for i in zip(counts, range(x2 - x1)):
-            x_coord = i[1] + x1
-            draw.line([x_coord, y, x_coord, y - height * i[0] / max_cnt], fill = 'blue')
+        
+        height_lst = []
+        for j in counts:
+            height_lst.append(height * j / max_cnt)
+
+        height_lst[1] = (height_lst[1] + height_lst[2] + height_lst[0]) / 3
+        height_lst[-2] = (height_lst[-2] + height_lst[-3] + height_lst[-1]) / 3
+        for j in range(2, x2 - x1 - 2):
+            local_sum = 0
+            for k in range(j - 2, j + 3):
+                local_sum += height_lst[k]
+            height_lst[j] = local_sum/5
+
+        for j in range(x2 - x1):
+            x_coord = j + x1
+            red = 255 - int(height_lst[j] * 255 / height)
+            green = ', 100, '
+            blue = int(height_lst[j] * 255 / height)
+            local_color = 'rgb(' + str(red) + green + str(blue) + ')'
+            draw.line([x_coord, y, x_coord, y - height_lst[j]], fill = local_color)
         y += step 
 
-    image.save("pics/" + file_name.split('/')[-1].split('.')[0] + '2.png', "PNG")
+    image.save("pics/" + file_name.split('/')[-1].split('.')[0] + '.v4.png', "PNG")
 
 def main():
     run(parse_args())
