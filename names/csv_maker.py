@@ -6,7 +6,6 @@ import argparse
 import names_grep as ngrep
 
 def get_fb2_files_from_dir(dir_path):
-    #TODO:recursive traverse of directory
     if not dir_path.endswith('/'):
         dir_path.append('/')
     return [dir_path + name for name in os.listdir(dir_path) if name.lower().endswith('.fb2') \
@@ -24,9 +23,6 @@ def prepare_csv_file_with_heroes(file_name):
     fd.close()
     parser = ngrep.FB2_parser(text)
     name_calc = ngrep.Names_calculator(parser.get_text())
-    fd = open(file_name + ".txt", 'w')
-    fd.write(parser.get_text())
-    fd.close()
     names = name_calc.names_lemmas.values()
     fd = open(file_name + '.names', 'w')
     for name in names:

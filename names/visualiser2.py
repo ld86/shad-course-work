@@ -26,7 +26,7 @@ def get_names_for_visual(file_name):
     ngr = ng.Names_calculator(pure_text)
     txt_len = ngr.text_len
     f.close()
-    names_for_visual = list(ngr.get_names())
+    names_for_visual = ngr.get_names()
     names_for_visual.sort(key = lambda x: x.sort_key(), reverse = True)
     return (names_for_visual[0:hero_count], txt_len)
 

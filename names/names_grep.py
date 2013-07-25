@@ -19,11 +19,11 @@ class Names_calculator:
         self.__calc_hero_characters()
 
     def get_names(self):
-        return self.names_lemmas.values()
+        return list(self.names_lemmas.values())
 
     def __calc_names(self):
         iterator = re.finditer(\
-            "([.?!«\"\'»()\[\]–—–…])?(\s+)([А-Я][а-я]*(?:(?:\s+|-)[А-Я][а-я]*)*)(?=[.?!\s,;:\)\"\'»])", \
+            "([.?!«\"»()\[\]–—–…])?(\s+)([А-Я][а-я]*(?:(?:\s+|-)[А-Я][а-я]*)*)(?=[.?!\s,;:\)\"»])", \
             self.text)
         for item in iterator:
             self.up_letter_words.append(item.group(3)) 
@@ -81,7 +81,8 @@ class Names_calculator:
                name_part[0] != '–' and \
                name_part[0] != '(' and \
                name_part[0] != ')' and \
-               name_part[0] != '…'
+               name_part[0] != '…' and \
+               name_part[0] != '\"'
 
 class Hero_character:
     def __init__(self):
@@ -116,11 +117,16 @@ class FB2_parser:
         return " ".join(strings)
 
 def main():
-    f = open("corpus/bibliya.fb2", "rb")
+    f = open("corpus/3_mushkerera.fb2", "rb")
     text = f.read()
     f.close()
     parser = FB2_parser(text)
     nc = Names_calculator(parser.get_text())
+    f = open("tmp.txt", "wb");
+    for n in nc.get_names():
+        f.write(bytes(n.name.encode('utf-8')))
+        f.write(bytes('\n'.encode('utf-8')))
+    f.close()
 
 if __name__ == "__main__":
     main()
