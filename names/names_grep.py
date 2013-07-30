@@ -45,12 +45,10 @@ class Names_calculator:
         mystem_out = self._mystem_process(' '.join(self.up_letter_words), ['-n', '-e utf-8'])
         mystem_lemmas = [item[1] for item in re.findall('(\w+)\{([\w|?]+)\}', mystem_out)]
         l_index = 0
-        for i in range(len(self.up_letter_words)):
-            word = self.up_letter_words[i]
-            pos = self.up_letter_words_pos[i]
+        for (word, pos) in zip(self.up_letter_words, self.up_letter_words_pos):
             j = len(word.split()) + len(word.split('-')) - 1
             lemma = ' '.join(mystem_lemmas[l_index : l_index + j])
-            if lemma in self.names_lemmas.keys():
+            if lemma in self.names_lemmas:
                 hc = self.names_lemmas[lemma]
                 hc.count += 1
                 hc.positions.append(pos)
@@ -67,22 +65,22 @@ class Names_calculator:
             return stdout.decode('utf-8')
 
     def _is_filtered(self, name_part):
-        return name_part == '' or \
-               name_part[0] != '«' and \
-               name_part[0] != '»' and \
-               name_part[0] != ':' and \
-               name_part[0] != '.' and \
-               name_part[0] != '?' and \
-               name_part[0] != '!' and \
-               name_part[0] != '[' and \
-               name_part[0] != ']' and \
-               name_part[0] != '-' and \
-               name_part[0] != '—' and \
-               name_part[0] != '–' and \
-               name_part[0] != '(' and \
-               name_part[0] != ')' and \
-               name_part[0] != '…' and \
-               name_part[0] != '\"'
+        return (name_part == '' or 
+               name_part[0] != '«' and 
+               name_part[0] != '»' and 
+               name_part[0] != ':' and 
+               name_part[0] != '.' and 
+               name_part[0] != '?' and 
+               name_part[0] != '!' and 
+               name_part[0] != '[' and 
+               name_part[0] != ']' and 
+               name_part[0] != '-' and 
+               name_part[0] != '—' and 
+               name_part[0] != '–' and 
+               name_part[0] != '(' and 
+               name_part[0] != ')' and 
+               name_part[0] != '…' and 
+               name_part[0] != '"')
 
 class Hero_character:
     def __init__(self):
@@ -110,10 +108,7 @@ class FB2_parser:
     def _decompose(self, item):
         if item.string:
             return item.string
-        strings = []
-        for ch in item.children:
-            if type(ch) == bs4.element.NavigableString:
-                strings.append(str(ch))
+        strings = [str(ch) for ch in item.children if type(ch) == bs4.element.NavigableString]
         return " ".join(strings)
 
 def main():
@@ -123,7 +118,7 @@ def main():
     parser = FB2_parser(text)
     nc = Names_calculator(parser.get_text())
     f = open("tmp.txt", "wb");
-    for n in nc.get_names():
+    for n in sorted(nc.get_names(), key = lambda x: x.sort_key(), reverse = True):
         f.write(bytes(n.name.encode('utf-8')))
         f.write(bytes('\n'.encode('utf-8')))
     f.close()
