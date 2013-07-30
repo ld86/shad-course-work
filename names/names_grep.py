@@ -23,12 +23,12 @@ class Names_calculator:
 
     def __calc_names(self):
         iterator = re.finditer(\
-            "([.?!«\"»()\[\]–—–…])?(\s+)([А-Я][а-я]*(?:(?:\s+|-)[А-Я][а-я]*)*)(?=[.?!\s,;:\)\"»])", \
+            "([.?!«\"\'»()\[\]–—–…])?(\s*)([А-Я][а-я]*(?:(?:\s+|-)[А-Я][а-я]*)*)(?=[.?!\s,;:\)\"\'»])", \
             self.text)
         for item in iterator:
             self.up_letter_words.append(item.group(3)) 
             self.up_letter_words_pos.append(item.start())
-            if self._is_filtered(str(item.group(1))) and len(str(item.group(3))) > 2:
+            if self._is_filtered(str(item.group(1))):
                 self.probable_names.append(item.group(3))
              
     def __calc_names_lemmas(self):
@@ -80,7 +80,8 @@ class Names_calculator:
                name_part[0] != '(' and 
                name_part[0] != ')' and 
                name_part[0] != '…' and 
-               name_part[0] != '"')
+               name_part[0] != '"' and
+               name_part[0] != "'")
 
 class Hero_character:
     def __init__(self):
