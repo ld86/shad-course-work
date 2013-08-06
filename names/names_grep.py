@@ -35,13 +35,12 @@ class Names_calculator:
         mystem_out = self._mystem_process(' '.join(self.probable_names), ['-n', '-e utf-8'])
         mystem_lemmas = [item[1] for item in re.findall('(\w+)\{([\w|?]+)\}', mystem_out)]
         mystem_out = self._mystem_process(' '.join(self.probable_names), ['-in', '-e utf-8'])
-        check_info = [item[1] for item in re.findall('(.+)\{(.+)\}', mystem_out)]
+        check_info = [item[1] for item in re.findall('(\w+)\{(.+)\}', mystem_out)]
+        assert(len(mystem_lemmas) == len(check_info))
         l_index = 0
-        f = open('tmp2.txt', 'wb')
-        for k in zip(mystem_lemmas, check_info):
-            f.write(bytes(('['+ k[0] + ' $$$ ' + k[1] + ']\n\n').encode('utf-8')))
         for name in self.probable_names:
-            j = len(name.split()) + len(name.split('-')) - 1
+            j = (len(name.split()) + len(name.split('–')) +
+                len(name.split('–')) + len(name.split('—')) - 3)
             for ci in check_info[l_index : l_index + j]:
                 if 'PR' in ci or 'гео.' in ci or 'INT' in ci:
                     break
