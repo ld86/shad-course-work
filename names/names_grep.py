@@ -4,7 +4,7 @@
 import bs4
 from bs4 import BeautifulSoup
 import re
-from subprocess import Popen, PIPE
+from my_subprocess import IPopen
 
 class Names_calculator:
     def __init__(self, text):
@@ -14,6 +14,8 @@ class Names_calculator:
         self.up_letter_words = []
         self.up_letter_words_pos = []
         self.names_lemmas = dict()
+        self.lemma_pipe = IPopen(["./mystem",'-ne', 'utf-8'])
+        self.lexic_pipe = IPopen(["./mystem", '-ine', 'utf-8'])
         self.__calc_names()
         self.__calc_names_lemmas()
         self.__calc_hero_characters()
@@ -32,11 +34,10 @@ class Names_calculator:
                 self.probable_names.append(item.group(3))
              
     def __calc_names_lemmas(self):
-        mystem_out = self._mystem_process(' '.join(self.probable_names), ['-n', '-e utf-8'])
+        mystem_out = self._mystem_process(' '.join(self.probable_names), self.lemma_pipe)
         mystem_lemmas = [item[1] for item in re.findall('(\w+)\{([\w|?]+)\}', mystem_out)]
-        mystem_out = self._mystem_process(' '.join(self.probable_names), ['-in', '-e utf-8'])
+        mystem_out = self._mystem_process(' '.join(self.probable_names), self.lexic_pipe)
         check_info = [item[1] for item in re.findall('(\w+)\{(.+)\}', mystem_out)]
-        assert(len(mystem_lemmas) == len(check_info))
         l_index = 0
         for name in self.probable_names:
             j = (len(name.split()) + len(name.split('–')) +
@@ -50,7 +51,7 @@ class Names_calculator:
             l_index += j
 
     def __calc_hero_characters(self):
-        mystem_out = self._mystem_process(' '.join(self.up_letter_words), ['-n', '-e utf-8'])
+        mystem_out = self._mystem_process(' '.join(self.up_letter_words), self.lemma_pipe)
         mystem_lemmas = [item[1] for item in re.findall('(\w+)\{([\w|?]+)\}', mystem_out)]
         l_index = 0
         for (word, pos) in zip(self.up_letter_words, self.up_letter_words_pos):
@@ -67,10 +68,8 @@ class Names_calculator:
                 hc.name = lemma
             l_index += j
 
-    def _mystem_process(self, raw_content, options):
-        with Popen(["./mystem"] + options, stdout=PIPE, stdin=PIPE) as pipe:
-            (stdout, stderr) = pipe.communicate(bytes(raw_content, "utf-8"))
-            return stdout.decode('utf-8')
+    def _mystem_process(self, raw_content, pipe):
+        return pipe.correspond(raw_content + '\n')
 
     def _is_filtered(self, name_part):
         return (name_part == '' or 
@@ -125,11 +124,9 @@ def main():
     f.close()
     parser = FB2_parser(text)
     nc = Names_calculator(parser.get_text())
-    f = open("tmp.txt", "wb");
-    for n in sorted(nc.get_names(), key = lambda x: x.sort_key(), reverse = True):
-        f.write(bytes(n.name.encode('utf-8')))
-        f.write(bytes('\n'.encode('utf-8')))
-    f.close()
-
+    print(list(filter(lambda x: x != '', 
+                    [hero.name for hero in 
+                    sorted(nc.get_names(), key = lambda x: x.sort_key(), reverse = True)]))
+        )
 if __name__ == "__main__":
     main()
