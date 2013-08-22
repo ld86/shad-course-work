@@ -34,21 +34,14 @@ class Names_calculator:
                 self.probable_names.append(item.group(3))
              
     def __calc_names_lemmas(self):
-        mystem_out = self._mystem_process(' '.join(self.probable_names), self.lemma_pipe)
-        mystem_lemmas = [item[1] for item in re.findall('(\w+)\{([\w|?]+)\}', mystem_out)]
-        mystem_out = self._mystem_process(' '.join(self.probable_names), self.lexic_pipe)
-        check_info = [item[1] for item in re.findall('(\w+)\{(.+)\}', mystem_out)]
-        l_index = 0
         for name in self.probable_names:
-            j = (len(name.split()) + len(name.split('–')) +
-                len(name.split('–')) + len(name.split('—')) - 3)
-            for ci in check_info[l_index : l_index + j]:
-                if 'PR' in ci or 'гео.' in ci or 'INT' in ci:
-                    break
-            else:
-                new_lemma = ' '.join(mystem_lemmas[l_index : l_index + j])
+            mystem_lemma = self._mystem_process(name, self.lemma_pipe)
+            check_info = self._mystem_process(name, self.lexic_pipe)
+            if ('PR' not in check_info and 
+                'гео' not in check_info and
+                'INT' not in check_info):
+                new_lemma = ' '.join([item[1] for item in re.findall('(\w+)\{([\w|?]+)\}', mystem_lemma)])
                 self.names_lemmas[new_lemma] = Hero_character()
-            l_index += j
 
     def __calc_hero_characters(self):
         mystem_out = self._mystem_process(' '.join(self.up_letter_words), self.lemma_pipe)
