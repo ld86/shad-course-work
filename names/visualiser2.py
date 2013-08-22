@@ -39,7 +39,7 @@ def run(file_name):
     x1 = 300
     x2 = 1000
     y = step 
-    font_path = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSerif.ttf"
+    font_path = "./DejaVuSerif.ttf"
     font = ImageFont.truetype(font_path, 16)
     height = step
     max_cnt = 0

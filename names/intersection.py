@@ -46,7 +46,7 @@ def main():
                 for name in inter_set:
                     f.write(bytes((name + '\n').encode('utf-8')))
                 f.write(bytes(('\n' + '=============' + '\n').encode('utf-8')))
-                if len(inter_set) > 50:
+                if len(inter_set) > 40:
                     min_id = min(book.class_id, book2.class_id)
                     book.class_id = min_id
                     book2.class_id = min_id

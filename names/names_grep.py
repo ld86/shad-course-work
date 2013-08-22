@@ -44,12 +44,14 @@ class Names_calculator:
                 self.names_lemmas[new_lemma] = Hero_character()
 
     def __calc_hero_characters(self):
+        """
         mystem_out = self._mystem_process(' '.join(self.up_letter_words), self.lemma_pipe)
         mystem_lemmas = [item[1] for item in re.findall('(\w+)\{([\w|?]+)\}', mystem_out)]
         l_index = 0
+        """
         for (word, pos) in zip(self.up_letter_words, self.up_letter_words_pos):
-            j = len(word.split()) + len(word.split('-')) - 1
-            lemma = ' '.join(mystem_lemmas[l_index : l_index + j])
+            mystem_lemma = self._mystem_process(word, self.lemma_pipe)
+            lemma = ' '.join([item[1] for item in re.findall('(\w+)\{([\w|?]+)\}', mystem_lemma)])
             if lemma in self.names_lemmas:
                 hc = self.names_lemmas[lemma]
                 hc.count += 1
@@ -59,7 +61,6 @@ class Names_calculator:
                 if pos > hc.finish:
                     hc.finish = pos
                 hc.name = lemma
-            l_index += j
 
     def _mystem_process(self, raw_content, pipe):
         return pipe.correspond(raw_content + '\n')
@@ -112,7 +113,7 @@ class FB2_parser:
         return " ".join(strings)
 
 def main():
-    f = open("corpus/3_mushkerera.fb2", "rb")
+    f = open("corpus/vlast_colets.fb2", "rb")
     text = f.read()
     f.close()
     parser = FB2_parser(text)
