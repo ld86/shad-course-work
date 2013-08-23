@@ -4,12 +4,7 @@
 from visualiser2 import parse_args
 import names_grep as ng
 
-class Chain_link():
-    def __init__(self, name, position):
-        self.name = name
-        self.position = position
-
-def main():
+def chain():
     file_name = parse_args()
     fb2 = open(file_name, 'rb').read().decode('utf-8')
     parser = ng.FB2_parser(fb2)
@@ -18,8 +13,19 @@ def main():
     heroes = names_greper.get_names()
     chain_links = [(hero.name, pos) for hero in heroes for pos in hero.positions]
     chain_links.sort(key=lambda x: x[1])
-    print(chain_links[:40])
-      
+    return chain_links
+
+def find_interact_pairs(chain):
+    """здесь происходит формирование множества пар предполагаемого взаимодействия героев.
+        pair - это кортеж вида ((hero0_name, hero0_pos), (hero1_name, hero1_pos))"""
+    return { pair #(pair[0][0], pair[1][0]) 
+            for pair in zip(chain, chain[1:]) 
+                if pair[1][1] - pair[0][1] < 100 }
+
+def main():
+    hero_chain = chain()
+    pairs = find_interact_pairs(hero_chain)
+    
 
 if __name__ == '__main__':
     main()        
