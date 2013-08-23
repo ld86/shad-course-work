@@ -6,7 +6,11 @@ from bs4 import BeautifulSoup
 import re
 from my_subprocess import IPopen
 
+
 class Names_calculator:
+    Lemma_pipe = IPopen(["./mystem",'-ne', 'utf-8'])
+    Lexic_pipe = IPopen(["./mystem", '-ine', 'utf-8'])
+    
     def __init__(self, text):
         self.text = text
         self.text_len = len(text)
@@ -14,8 +18,6 @@ class Names_calculator:
         self.up_letter_words = []
         self.up_letter_words_pos = []
         self.names_lemmas = dict()
-        self.lemma_pipe = IPopen(["./mystem",'-ne', 'utf-8'])
-        self.lexic_pipe = IPopen(["./mystem", '-ine', 'utf-8'])
         self.__calc_names()
         self.__calc_names_lemmas()
         self.__calc_hero_characters()
@@ -35,8 +37,8 @@ class Names_calculator:
              
     def __calc_names_lemmas(self):
         for name in self.probable_names:
-            mystem_lemma = self._mystem_process(name, self.lemma_pipe)
-            check_info = self._mystem_process(name, self.lexic_pipe)
+            mystem_lemma = self._mystem_process(name, self.Lemma_pipe)
+            check_info = self._mystem_process(name, self.Lexic_pipe)
             if ('PR' not in check_info and 
                 'гео' not in check_info and
                 'INT' not in check_info):
@@ -45,7 +47,7 @@ class Names_calculator:
 
     def __calc_hero_characters(self):
         for (word, pos) in zip(self.up_letter_words, self.up_letter_words_pos):
-            mystem_lemma = self._mystem_process(word, self.lemma_pipe)
+            mystem_lemma = self._mystem_process(word, self.Lemma_pipe)
             lemma = ' '.join([item[1] for item in re.findall('(\w+)\{([\w|?]+)\}', mystem_lemma)])
             if lemma in self.names_lemmas:
                 hc = self.names_lemmas[lemma]
@@ -56,11 +58,13 @@ class Names_calculator:
                 if pos > hc.finish:
                     hc.finish = pos
                 hc.name = lemma
-
-    def _mystem_process(self, raw_content, pipe):
+    
+    @staticmethod
+    def _mystem_process(raw_content, pipe):
         return pipe.correspond(raw_content + '\n')
-
-    def _is_filtered(self, name_part):
+    
+    @staticmethod
+    def _is_filtered(name_part):
         return (name_part == '' or 
                name_part[0] != '«' and 
                name_part[0] != '»' and 
