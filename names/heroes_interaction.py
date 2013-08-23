@@ -18,14 +18,15 @@ def chain():
 def find_interact_pairs(chain):
     """здесь происходит формирование множества пар предполагаемого взаимодействия героев.
         pair - это кортеж вида ((hero0_name, hero0_pos), (hero1_name, hero1_pos))"""
-    return { pair #(pair[0][0], pair[1][0]) 
+    return { (pair[0][0], pair[1][0]) 
             for pair in zip(chain, chain[1:]) 
                 if pair[1][1] - pair[0][1] < 100 }
 
 def main():
     hero_chain = chain()
     pairs = find_interact_pairs(hero_chain)
-    
+    for pair in pairs:
+        print(pair)
 
 if __name__ == '__main__':
     main()        
