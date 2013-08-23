@@ -44,11 +44,6 @@ class Names_calculator:
                 self.names_lemmas[new_lemma] = Hero_character()
 
     def __calc_hero_characters(self):
-        """
-        mystem_out = self._mystem_process(' '.join(self.up_letter_words), self.lemma_pipe)
-        mystem_lemmas = [item[1] for item in re.findall('(\w+)\{([\w|?]+)\}', mystem_out)]
-        l_index = 0
-        """
         for (word, pos) in zip(self.up_letter_words, self.up_letter_words_pos):
             mystem_lemma = self._mystem_process(word, self.lemma_pipe)
             lemma = ' '.join([item[1] for item in re.findall('(\w+)\{([\w|?]+)\}', mystem_lemma)])

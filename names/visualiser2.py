@@ -16,7 +16,6 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("file_name", type = str)
     args = parser.parse_args()
-    print(args.file_name)
     return args.file_name
 
 def get_names_for_visual(file_name):
